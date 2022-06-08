@@ -64,8 +64,10 @@ contract zkTrustGame is Ownable {
                 "Tokens for game creation cannot be transfered. Please approve this contract for given amount of tokens.");
 
         Room storage currentRoom = rooms[indexOfRoom];
+        currentRoom.turn++;
         currentRoom.players[0] = msg.sender;
         currentRoom.balances[msg.sender] = _tokenAmount;
+        currentRoom.hashedAnswers[msg.sender] = _hostAnswerHash;
         
         indexOfRoom++;
     }

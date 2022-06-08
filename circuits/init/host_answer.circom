@@ -7,7 +7,7 @@ include "../node_modules/circomlib/circuits/comparators.circom";
 //provided by host. It lets other player to be sure, that
 //the host created hash only from salt and answer, and that the answer
 //is number between 0 and 1, without knwoing the answer in advance.
-template Init() {
+template HostAnswer() {
     //private input - provided by host
     signal input salt;
     signal input answer;
@@ -31,4 +31,4 @@ template Init() {
     answerHash <== poseidon.out;
 }
 
-component main = Init();
+component main = HostAnswer();

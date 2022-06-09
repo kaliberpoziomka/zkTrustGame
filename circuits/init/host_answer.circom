@@ -14,10 +14,13 @@ template HostAnswer() {
 
     //outputs
     signal output answerHash;
+    signal output saltHash;
 
     //components
     component lt = lessThan(32);
     component poseidon = Poseidon(2);
+    component poseidonSalt = Poseidon(1);
+
 
     //check if answer is 0 or 1
     lt.in[0] <== answer;
@@ -29,6 +32,10 @@ template HostAnswer() {
     poseidon.inputs[0] <== salt;
     poseidon.inputs[1] <== answer;
     answerHash <== poseidon.out;
+
+    //create hash of salt to make it public
+    poseidonSalt.inputs[0] <== salt;
+    saltHash <== poseidonSalt.out;
 }
 
 component main = HostAnswer();

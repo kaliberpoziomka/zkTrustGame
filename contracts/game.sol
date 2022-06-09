@@ -21,6 +21,8 @@ contract zkTrustGame is Ownable {
         mapping(address => uint256) balances;
         // hashed answers of players
         mapping(address => uint256) hashedAnswers;
+        // hash of salt chosen by host
+        uint256 pubSaltHash;
         // turn of a game a in a room
         uint256 turn;
         // address of a winner player
@@ -44,27 +46,28 @@ contract zkTrustGame is Ownable {
     /// @param _hostAnswerHash is a hash produced in a circuit by host giving first answer
     function initRoom(
         uint256 _hostAnswerHash,
+        uint256 _hostSaltHash,
         uint256[2] memory a,
         uint256[2][2] memory b,
         uint256[2] memory c,
         address _token,
         uint256 _tokenAmount
     ) external {
-        require(hostAnswerVerifier.verifyProof(a, b, c, [_hostAnswerHash]), 
+        require(hostAnswerVerifier.verifyProof(a, b, c, [_hostAnswerHash, _hostSaltHash]), 
                "Invalid host answer!");
 
         require(_token != address(0), "Token address cannot be 0.");
         require(_tokenAmount != 0, "Amount of tokens must be more than zero.");
 
-        require(IERC20(_token).transferFrom(
-                            msg.sender,
+        require(IERC20(_token).transfer(
                             address(this),
                             _tokenAmount
                         ),
-                "Tokens for game creation cannot be transfered. Please approve this contract for given amount of tokens.");
+                "Tokens for game creation cannot be transfered. Please make sure you have enough tokens.");
 
         Room storage currentRoom = rooms[indexOfRoom];
         currentRoom.turn++;
+        currentRoom.pubSaltHash = _hostSaltHash;
         currentRoom.players[0] = msg.sender;
         currentRoom.balances[msg.sender] = _tokenAmount;
         currentRoom.hashedAnswers[msg.sender] = _hostAnswerHash;
